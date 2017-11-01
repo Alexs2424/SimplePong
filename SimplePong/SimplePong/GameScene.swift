@@ -12,7 +12,7 @@ import GameplayKit
 private let PLAYER_CATEGORY: UInt32 = 0x1 << 0
 private let BALL_CATEGORY:UInt32 = 0x1 << 1
 private let CPU_CATEGORY:UInt32 = 0x1 << 2
-private let WALL_CATEGORY:UInt32 = 0x1 << 3 
+private let WALL_CATEGORY:UInt32 = 0x1 << 3
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
@@ -30,9 +30,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //Game variables
     var score = 0
+    var isTouchingUp = false
+    var isTouchingDown = false
     
     override func didMove(to view: SKView) {
         setupGame()
+        setupPhysics()
     }
     
     func setupGame() {
@@ -82,11 +85,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupPhysics() {
+        //Setting the delegate
+        self.physicsWorld.contactDelegate = self
         
+        //Creating the borderbody so the ball can bounce off of the walls.
+        let borderBody = SKPhysicsBody(edgeLoopFrom: self.frame)
+        self.physicsBody = borderBody
+        self.physicsBody?.friction = 0.0
+        self.physicsBody?.categoryBitMask = WALL_CATEGORY
+        
+        //Configuring the gravity in the world.
+        self.physicsWorld.gravity = CGVector(dx: 0.0, dy: 0.0)
+        
+        //Configuring Player One Node Physics
+        self.player?.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        self.player?.physicsBody = SKPhysicsBody(rectangleOf: (player?.frame.size)!)
+        self.player?.physicsBody?.categoryBitMask = PLAYER_CATEGORY
+        self.player?.physicsBody?.collisionBitMask = WALL_CATEGORY | BALL_CATEGORY | CPU_CATEGORY
+        self.player?.physicsBody?.contactTestBitMask = 0 //might need to be changed to account for the ball.
+        self.player?.physicsBody?.mass = 100.0
+        self.player?.physicsBody?.restitution = 1.0
+        self.player?.physicsBody?.linearDamping = 1.0
+        self.player?.physicsBody?.allowsRotation = false
+        
+        //Configuring Ball Node Physics
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches {
+            let location:CGPoint = t.location(in: self)
+            
+            //Checking to see if the up button was pressed
+            if self.up!.contains(location) {
+                self.isTouchingUp = true
+//                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 150.0)
+            } else if self.down!.contains(location) {
+                self.isTouchingDown = true
+//                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: -150.0)
+            }
+            
+
             
         }
     }
@@ -99,7 +137,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches {
-        
+            let location:CGPoint = t.location(in: self)
+            
+            //Checking to see if the up button was pressed
+            if self.up!.contains(location) {
+                self.isTouchingUp = false
+                //                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 150.0)
+            } else if self.down!.contains(location) {
+                self.isTouchingDown = false
+                //                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: -150.0)
+            }
         }
     }
     
@@ -111,5 +158,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+        if self.isTouchingUp {
+            self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 150.0)
+        } else if self.isTouchingDown {
+            self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: -150.0)
+        }
     }
 }
