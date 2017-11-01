@@ -118,20 +118,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //Checking to see if the up button was pressed
             if self.up!.contains(location) {
                 self.isTouchingUp = true
-//                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 150.0)
+                self.isTouchingDown = false
             } else if self.down!.contains(location) {
                 self.isTouchingDown = true
-//                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: -150.0)
+                self.isTouchingUp = false
             }
-            
-
-            
+        
         }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches {
-        
+            let location:CGPoint = t.location(in: self)
+            
+            //Checking to see if the up button was pressed
+            if self.up!.contains(location) {
+                self.isTouchingUp = true
+                self.isTouchingDown = false
+            } else if self.down!.contains(location) {
+                self.isTouchingDown = true
+                self.isTouchingUp = false
+            }
         }
     }
     
@@ -142,17 +149,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //Checking to see if the up button was pressed
             if self.up!.contains(location) {
                 self.isTouchingUp = false
-                //                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 150.0)
+                self.isTouchingDown = false
+                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
             } else if self.down!.contains(location) {
                 self.isTouchingDown = false
-                //                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: -150.0)
+                self.isTouchingUp = false
+                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
             }
         }
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches {
-        
+            let location:CGPoint = t.location(in: self)
+            
+            //Checking to see if the up button was pressed
+            if self.up!.contains(location) {
+                self.isTouchingUp = false
+                self.isTouchingDown = false
+                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
+            } else if self.down!.contains(location) {
+                self.isTouchingDown = false
+                self.isTouchingUp = false
+                self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
+            }
         }
     }
     
@@ -160,8 +180,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Called before each frame is rendered
         if self.isTouchingUp {
             self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 150.0)
+//            self.isTouchingUp = false
         } else if self.isTouchingDown {
             self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: -150.0)
+//            self.isTouchingDown = false
+        } else {
+            self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
         }
     }
 }
