@@ -137,12 +137,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.cpu?.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         self.cpu?.physicsBody = SKPhysicsBody(rectangleOf: (cpu?.frame.size)!)
         self.cpu?.physicsBody?.categoryBitMask = CPU_CATEGORY
-        self.cpu?.physicsBody?.collisionBitMask = WALL_CATEGORY | BALL_CATEGORY
-        self.cpu?.physicsBody?.contactTestBitMask = 0
+        self.cpu?.physicsBody?.collisionBitMask = WALL_CATEGORY | BALL_CATEGORY //| CPU_CATEGORY
+        self.cpu?.physicsBody?.contactTestBitMask = 0 //might need to be changed to account for the ball.
         self.cpu?.physicsBody?.mass = 100.0
         self.cpu?.physicsBody?.restitution = 0.0
         self.cpu?.physicsBody?.linearDamping = 0.0
-        self.cpu?.physicsBody?.allowsRotation = false 
+        self.cpu?.physicsBody?.allowsRotation = false
+//        self.cpu?.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+//        self.cpu?.physicsBody = SKPhysicsBody(rectangleOf: (cpu?.frame.size)!)
+//        self.cpu?.physicsBody?.categoryBitMask = CPU_CATEGORY
+//        self.cpu?.physicsBody?.collisionBitMask = WALL_CATEGORY | BALL_CATEGORY
+//        self.cpu?.physicsBody?.contactTestBitMask = 0
+//        self.cpu?.physicsBody?.mass = 100.0
+//        self.cpu?.physicsBody?.restitution = 0.0
+//        self.cpu?.physicsBody?.linearDamping = 0.0
+//        self.cpu?.physicsBody?.allowsRotation = false
         
         //Setting the intial verlocoty of the ball
         self.ball?.physicsBody?.velocity = CGVector(dx: 150.0, dy: 150.0)
@@ -215,6 +224,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
+        checkForScore()
+        
         if self.isTouchingUp {
             self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 200.0)
 //            self.isTouchingUp = false
@@ -226,11 +237,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func incrementScore() {
+        self.score += 1
+        self.scoreLabel?.text = "\(self.score)"
+    }
+    
     func checkForScore() {
-        if (self.ball?.position.x < self.player?.position.x) {
+
+        if (self.ball!.position.x < self.player!.position.x) {
             //cpu scored on player one
-        } else if (self.ball?.position.x > self.cpu?.position.x) {
+            print("CPU Scored! You Lost. Game Over.")
+        } else if (self.ball!.position.x > self.cpu!.position.x) {
             //player scored on cpu
+            incrementScore()
+            print("Player Scored! You Won. Game Over.")
         }
     }
 }
