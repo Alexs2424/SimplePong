@@ -225,4 +225,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
         }
     }
+    
+    func checkForScore() {
+        if (self.ball?.position.x < self.player?.position.x) {
+            //cpu scored on player one
+        } else if (self.ball?.position.x > self.cpu?.position.x) {
+            //player scored on cpu
+        }
+    }
 }
