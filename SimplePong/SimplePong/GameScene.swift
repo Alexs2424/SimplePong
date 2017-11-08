@@ -23,6 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //Game nodes
     var player:SKSpriteNode?
     var ball:SKSpriteNode?
+    var cpu:SKSpriteNode?
     
     //Buttons
     var up:SKSpriteNode?
@@ -68,6 +69,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //Ball Sprite
         //need to create an image for this sprite to be created
+        ball = SKSpriteNode(imageNamed: "Ball")
+        ball?.position = CGPoint(x: self.frame.midX, y: self.frame.midY)
+        self.addChild(ball!)
+        
+        //CPU Sprite
+        cpu = SKSpriteNode(color: .white, size: CGSize(width: 10.0, height: 80.0))
+        cpu?.position = CGPoint(x: self.frame.maxX - 80.0, y: 100.0)
+        self.addChild(cpu!)
         /* END GAME SPRITE SETUP */
         
         /* BUTTON AND CONTROL SETUP */
@@ -89,10 +98,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.physicsWorld.contactDelegate = self
         
         //Creating the borderbody so the ball can bounce off of the walls.
+       // let borderBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         let borderBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         self.physicsBody = borderBody
         self.physicsBody?.friction = 0.0
         self.physicsBody?.categoryBitMask = WALL_CATEGORY
+        self.physicsBody?.collisionBitMask = BALL_CATEGORY | PLAYER_CATEGORY | CPU_CATEGORY
+        self.physicsBody?.contactTestBitMask = 0
         
         //Configuring the gravity in the world.
         self.physicsWorld.gravity = CGVector(dx: 0.0, dy: 0.0)
@@ -101,14 +113,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.player?.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         self.player?.physicsBody = SKPhysicsBody(rectangleOf: (player?.frame.size)!)
         self.player?.physicsBody?.categoryBitMask = PLAYER_CATEGORY
-        self.player?.physicsBody?.collisionBitMask = WALL_CATEGORY | BALL_CATEGORY | CPU_CATEGORY
+        self.player?.physicsBody?.collisionBitMask = WALL_CATEGORY | BALL_CATEGORY //| CPU_CATEGORY
         self.player?.physicsBody?.contactTestBitMask = 0 //might need to be changed to account for the ball.
         self.player?.physicsBody?.mass = 100.0
-        self.player?.physicsBody?.restitution = 1.0
-        self.player?.physicsBody?.linearDamping = 1.0
+        self.player?.physicsBody?.restitution = 0.0
+        self.player?.physicsBody?.linearDamping = 0.0
         self.player?.physicsBody?.allowsRotation = false
         
+        
         //Configuring Ball Node Physics
+        self.ball?.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        self.ball?.physicsBody = SKPhysicsBody(circleOfRadius: (self.player?.frame.size.height)! / 6) //was 4
+        self.ball?.physicsBody?.categoryBitMask = BALL_CATEGORY
+        self.ball?.physicsBody?.collisionBitMask = WALL_CATEGORY | PLAYER_CATEGORY | CPU_CATEGORY
+        self.ball?.physicsBody?.contactTestBitMask = 0 //may change depending on points system setup
+        self.ball?.physicsBody?.mass = 5.0
+        self.ball?.physicsBody?.restitution = 1.0
+        self.ball?.physicsBody?.linearDamping = 0.0 //was 1.0
+        self.ball?.physicsBody?.allowsRotation = false
+        
+        
+        //Configuring Cpu Node Physics
+        self.cpu?.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        self.cpu?.physicsBody = SKPhysicsBody(rectangleOf: (cpu?.frame.size)!)
+        self.cpu?.physicsBody?.categoryBitMask = CPU_CATEGORY
+        self.cpu?.physicsBody?.collisionBitMask = WALL_CATEGORY | BALL_CATEGORY
+        self.cpu?.physicsBody?.contactTestBitMask = 0
+        self.cpu?.physicsBody?.mass = 100.0
+        self.cpu?.physicsBody?.restitution = 0.0
+        self.cpu?.physicsBody?.linearDamping = 0.0
+        self.cpu?.physicsBody?.allowsRotation = false 
+        
+        //Setting the intial verlocoty of the ball
+        self.ball?.physicsBody?.velocity = CGVector(dx: 150.0, dy: 150.0)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -179,10 +216,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
         if self.isTouchingUp {
-            self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 150.0)
+            self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 200.0)
 //            self.isTouchingUp = false
         } else if self.isTouchingDown {
-            self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: -150.0)
+            self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: -200.0)
 //            self.isTouchingDown = false
         } else {
             self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
