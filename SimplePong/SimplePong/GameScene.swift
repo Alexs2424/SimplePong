@@ -30,6 +30,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var down:SKSpriteNode?
     
     //Game variables
+    var aiTimer:Timer?
     var score = 0
     var isTouchingUp = false
     var isTouchingDown = false
@@ -90,6 +91,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         down?.size = CGSize(width: 50.0, height: 50.0)
         self.addChild(down!)
         /* END BUTTON CONTROL SETUP */
+        
+        
+        /* SETTING UP THE CPU UPDATE IN THE GAME */
+        self.aiTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(GameScene.cpuUpdate), userInfo: nil, repeats: true)
+        /* END THE CPU UPDATE */
         
     }
     
@@ -236,6 +242,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //            self.isTouchingDown = false
         } else {
             self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
+        }
+    }
+    
+    @objc
+    func cpuUpdate() {
+        if let pongBall = self.ball {
+            if let cpuPaddle = self.cpu {
+                
+                let dxAIEasy = pongBall.position.x - cpuPaddle.position.x
+                
+                //Velocity is 150.0f
+                let EASY_VELOCITY = 150.0
+                
+                if dxAIEasy > 0 {
+                    cpuPaddle.physicsBody?.velocity = CGVector(dx: EASY_VELOCITY, dy: 0.0)
+                } else if dxAIEasy == 0 {
+                    cpuPaddle.physicsBody?.velocity = CGVector(dx: 0.0, dy: 0.0)
+                } else {
+                    cpuPaddle.physicsBody?.velocity = CGVector(dx: -EASY_VELOCITY, dy: 0.0)
+                }
+                
+            }
         }
     }
     
