@@ -226,6 +226,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Called before each frame is rendered
         checkForScore()
         
+        
+        
         if self.isTouchingUp {
             self.player?.physicsBody?.velocity = CGVector(dx: 0.0, dy: 200.0)
 //            self.isTouchingUp = false
